@@ -3,6 +3,7 @@ using duongtrinhson_2011063038_lab4.ViewModels;
 using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Drawing.Printing;
 using System.Linq;
 using System.Web;
@@ -19,12 +20,28 @@ namespace duongtrinhson_2011063038_lab4.Controllers
         {
             _dbContext = new ApplicationDbContext();
         }
-        public ActionResult Create( CourseViewModel viewModel)
 
+        public List<Category> Categories { get; private set; }
+
+        [Authorize]
+        public ActionResult Create()
+        {
+            var viewModel=new CourseViewModel
+            {
+                Categories = _dbContext.Categories.ToList()
+             };
+            return View(viewModel);
+        }
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        
+        public ActionResult Create( CourseViewModel viewModel)
+                
         {
             if(!ModelState.IsValid)
             {
-                viewModel.Categories = _dbContext.categories.ToList();
+                viewModel.Categories = _dbContext.Categories.ToList();
                 return View("Create", viewModel);
             }
 
@@ -41,6 +58,24 @@ namespace duongtrinhson_2011063038_lab4.Controllers
             _dbContext.SaveChanges();
             return RedirectToAction("Index","Home");
         }
-        
+
+        [Authorize]
+        public ActionResult Attending()
+        {
+            var userId=User.Identity.GetUserId();
+            var courses = _dbContext.Attendances
+                .Where(a => a.AttendeeId == userId)
+                .Select(a => a.Course)
+                .Include(l => l.category)
+                .ToList();
+            var viewModel = new CoursesViewModels
+            {
+                UpcomingCourses = courses,
+                ShowAction = User.Identity.IsAuthenticated
+            };
+            return View(viewModel);
+
+        }
+
     }
 }

@@ -10,17 +10,19 @@ namespace duongtrinhson_2011063038_lab4.ViewModels
     public class CourseViewModel
     {
         [Required]
-        public String Place { get; set; }
+        public string Place { get; set; }
         [Required]
-        public String Date{ get; set; }
+        [FutureDate]
+      public string Date{ get; set; }
         [Required]
-        public String Time { get; set; }
+        [ValidTime]
+        public string Time { get; set; }
         [Required]
         public byte Category { get; set; }
         public IEnumerable<Category> Categories { get; set; }
         public DateTime GetDateTime()
         {
-            return DateTime.Parse(String.Format("{0}{1}",Date,Time));
+            return DateTime.Parse(string.Format("{0} {1}",Date,Time));
         }
 
     }
